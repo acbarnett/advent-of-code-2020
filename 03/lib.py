@@ -24,4 +24,5 @@ def count_trees(rows, x_distance, y_distance):
     x = (x + x_distance) % row_length
     y = y + y_distance
 
-  print(trees_hit)
+  return trees_hit
+  
