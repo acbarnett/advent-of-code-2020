@@ -1,4 +1,3 @@
-filename = "a-demo.txt"
 filename = "a-input.txt"
 
 def get_seats(name):
@@ -26,10 +25,21 @@ def get_score(front, side):
 
 all_seats = get_seats(filename)
 high_score = 0
+all_scores = []
 for seat in all_seats:
   positions = get_positions(seat)
   score = get_score(*positions)
+  all_scores.append(score)
   if score > high_score:
     high_score = score
 
+print("High Score")
 print(high_score)
+
+all_scores.sort()
+offset = all_scores[0]
+for i in range(0, len(all_scores)):
+  if all_scores[i] - i != offset:
+    print("Your Seat")
+    print(all_scores[i] - 1)
+    break
