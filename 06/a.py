@@ -17,7 +17,6 @@ groups = get_groups(name)
 
 sum = 0
 for group in groups:
-  print(group)
   uniques = get_questions_per_group(group)
   sum = sum + len(uniques)
 
