@@ -34,6 +34,8 @@ for i in range(0, len(numbers)):
   sum = numbers[i]
   for j in range(i+1, len(numbers)):
     sum += numbers[j]
+    if sum > part_a_solution:
+      break
     if sum == part_a_solution:
       valid_range = numbers[i:j+1]
       print(min(valid_range) + max(valid_range))
