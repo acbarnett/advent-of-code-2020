@@ -24,59 +24,6 @@ def get_init_state():
   }
   return program_state
 
-def execute_a(state, lines):
-  line = lines[state[CUR_LINE]]
-  op, instruction = line.split(" ")
-  instruction = int(instruction)
-
-  if state[CUR_LINE] in state[LINES_EXECUTED]:
-    return state[ACC_VALUE]
-
-  if op == NOP:
-    state[LINES_EXECUTED].append(state[CUR_LINE])
-    state[CUR_LINE] += 1
-    return execute_a(state, lines)
-
-  if op == ACC:
-    state[LINES_EXECUTED].append(state[CUR_LINE])
-    state[CUR_LINE] += 1
-    state[ACC_VALUE] += instruction
-    return execute_a(state, lines)
-
-  if op == JMP:
-    state[LINES_EXECUTED].append(state[CUR_LINE])
-    state[CUR_LINE] += instruction
-    return execute_a(state, lines)
-
-def execute_b(state, lines):
-  # This means the program has finished
-  if state[CUR_LINE] >= len(lines):
-    return state[ACC_VALUE]
-
-  line = lines[state[CUR_LINE]]
-  op, instruction = line.split(" ")
-  instruction = int(instruction)
-
-  # This means the program has encountered an infinite loop
-  if state[CUR_LINE] in state[LINES_EXECUTED]:
-    return False
-
-  if op == NOP:
-    state[LINES_EXECUTED].append(state[CUR_LINE])
-    state[CUR_LINE] += 1
-    return execute_b(state, lines)
-
-  if op == ACC:
-    state[LINES_EXECUTED].append(state[CUR_LINE])
-    state[CUR_LINE] += 1
-    state[ACC_VALUE] += instruction
-    return execute_b(state, lines)
-
-  if op == JMP:
-    state[LINES_EXECUTED].append(state[CUR_LINE])
-    state[CUR_LINE] += instruction
-    return execute_b(state, lines)
-
 def flip_next_nop_or_jump(input_lines, start):
   lines = input_lines[:]
   for i in range(start, len(lines)):
@@ -89,15 +36,43 @@ def flip_next_nop_or_jump(input_lines, start):
 
   return lines, len(lines) + 1
 
+def execute(state, lines, fail_on_infinite_loop):
+  # This means the program has finished
+  if state[CUR_LINE] >= len(lines):
+    return state[ACC_VALUE]
+
+  line = lines[state[CUR_LINE]]
+  op, instruction = line.split(" ")
+  instruction = int(instruction)
+
+  # This means the program has encountered an infinite loop
+  if state[CUR_LINE] in state[LINES_EXECUTED]:
+    if fail_on_infinite_loop:
+      return False
+    else:
+      return state[ACC_VALUE]
+
+  if op == NOP:
+    state[LINES_EXECUTED].append(state[CUR_LINE])
+    state[CUR_LINE] += 1
+
+  if op == ACC:
+    state[LINES_EXECUTED].append(state[CUR_LINE])
+    state[CUR_LINE] += 1
+    state[ACC_VALUE] += instruction
+
+  if op == JMP:
+    state[LINES_EXECUTED].append(state[CUR_LINE])
+    state[CUR_LINE] += instruction
+
+  return execute(state, lines, fail_on_infinite_loop)
 
 
 program_lines = get_lines(filename)
 
-result = execute_a(get_init_state(), program_lines)
-
 print("Solution to part a")
+result = execute(get_init_state(), program_lines, False)
 print(result)
-
 
 print("Solution to part b")
 line_to_search = 0
@@ -107,7 +82,7 @@ while line_to_search < program_length and not program_terminates:
   program, updated_line = flip_next_nop_or_jump(program_lines, line_to_search)
   line_to_search = updated_line
 
-  result = execute_b(get_init_state(), program)
+  result = execute(get_init_state(), program, True)
 
   if result is not False:
     program_terminates = True
